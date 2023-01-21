@@ -1,0 +1,52 @@
+1. Підключення до інтернету.<br>
+<br>
+iwctl: station wlan0 connect "вай-фай"<br>
+<br>
+2. Розділи диску<br>
+<br>
+lsblk<br>
+cfdisk /dev/диск<br>
+<br>
+3. Монтіруєм диски та стираємо їх.<br>
+<br>
+lsblk<br>
+mkfs.fat -F32 /dev/бут-розділ<br>
+mkfs.ext4 /dev/корінь-розділ<br>
+<br>
+4. Готовимо до установки.<br>
+<br>
+mount /dev/корінь-розділ /mnt<br>
+mkdir /mnt/boot<br>
+mount /dev/бут-розділ /mnt/boot<br>
+<br>
+5. Установка.<br>
+<br>
+pacstrap /mnt base linux linux-firmware<br>
+genfstab -U /mnt >> /mnt/etc/fstab<br>
+<br>
+6. Вход і юзери<br>
+<br>
+arch-chroot /mnt<br>
+pacman -S nano sudo dhcpcd wpa_supplicant wireless_tools networkmanager<br>
+systemctl enable NetworkManager.service<br>
+passwd<br>
+useradd -m -g users -G wheel -s /bin/bash domon<br>
+passwd domon<br>
+<br>
+7. Права юзера<br>
+<br>
+EDITOR-nano visudo<br>
+строчка: domon ALL=(ALL) ALL<br>
+<br>
+8. Grub установка<br>
+<br>
+pacman -S grub efibootmgr<br>
+mkdir /boot/efi<br>
+mount /dev/бут-розділ /boot/efi<br>
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --removable<br>
+grub-mkconfig -o /boot/grub/grub.cfg<br>
+<br>
+9. Кінець<br>
+exit<br>
+umount -R /mnt<br>
+reboot<br>
